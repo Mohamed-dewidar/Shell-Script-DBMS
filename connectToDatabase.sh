@@ -15,6 +15,12 @@ else
     select choice in ${databasesDir[@]} "back to Main Menu"
     do
 
+        if ! [[ $REPLY =~ ^[0-9]+$ ]]
+        then
+            echo "enter a valid Number"
+            continue
+        fi
+        
         if (($REPLY>${#databasesDir[@]}+1))
         then
             echo "enter a valid number"
