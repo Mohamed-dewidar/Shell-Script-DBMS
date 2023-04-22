@@ -5,7 +5,7 @@ echo "## MANAGE DATABASE"
 echo "Connected to $1"
 
 PS3="Enter your selection number ==> "
-optionsList=("Create-Table" "List-Tables" "Drop-Table" "Insert-Into-Table" "Select-From-Table" "Update-Table" "Delete-Table")
+optionsList=("Create-Table" "List-Tables" "Drop-Table" "Insert-Into-Table" "Select-From-Table" "Update-Table" "Delete-Table" "Main-menu")
 
 select choice in ${optionsList[@]}
 do 
@@ -17,6 +17,7 @@ do
         5) source ./manageDatabase/select.sh $1;;
         6) source ./manageDatabase/update.sh $1;;
         7) source ./manageDatabase/delete.sh $1;;
+        8) source ./mainMenu.sh;;
         *) echo "Enter a valid Selection" ;;
     esac
 done

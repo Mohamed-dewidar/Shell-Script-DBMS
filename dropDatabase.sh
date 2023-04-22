@@ -5,12 +5,11 @@ printf "\n"
 echo "Choose DataBase to Drop"
 PS3="Select A number ==> "
 
-#databasesDir=($(ls -d ./DataBases/* | cut -d/ -f3))
 databasesDir=($(find ./DataBases -mindepth 1 -type d | cut -d/ -f3))
 echo ${databasesDir[@]}
 if ((${#databasesDir[@]}==0))
 then
-    echo "no Databases to Connect too , you will be redirected to main menu in 2 seconds"
+    echo "no Databases, you will be redirected to main menu in 2 seconds"
     sleep 2
     source ./mainMenu.sh
 else

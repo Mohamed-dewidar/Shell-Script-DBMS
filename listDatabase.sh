@@ -24,7 +24,7 @@ else
     printf "+----------------------+ \n"
 
     res=''
-    while [ "$res" != 'y' ]
+    until [[ $res =~ ^[Yy]$ ]]
     do
         read -p "back to main menu[y/n]: " res
     done

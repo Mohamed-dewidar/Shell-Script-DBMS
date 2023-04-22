@@ -5,7 +5,7 @@ echo "## CREATE TABLE ##"
 
 declare -A fieldSet
 db=$1
-
+## Table name
 while [ true ]
 do
     read -p "Enter a valid table name uppercase and lowercase letters only ==> " tableName
@@ -27,6 +27,7 @@ done
 printf "\n"
 fields=""
 
+# Primary Keys
 while [ true ]
 do 
     read -p "Enter the primary key Column Name ==> " colName
@@ -65,6 +66,7 @@ do
 
 done
 
+# Fields
 while [ true ]
 do 
 
@@ -108,6 +110,8 @@ do
 
 done
 
+
+# Creation complete
 printf "\n"
 echo "table ${tableName} was created Successfully"
 
