@@ -2,7 +2,9 @@
 
 printf "\n"
 
-echo "## INSERT INOT TABLE ##"
+echo "#######################"
+echo "## INSERT INTO TABLE ##"
+echo "#######################"
 declare -A primSet
 declare -A fieldSet
 declare -A map
@@ -10,31 +12,36 @@ primOrder=()
 fieldOrder=()
 db=$1
 record=''
-
+table=''
 
 function selectMenu {
-    
-    select choice in $@
+        
+    select choice in $@ "Back to Manage Home"
     do 
 
-        if (($REPLY>$#)) || ! [[ $REPLY =~ ^[0-9]+$ ]] || (($REPLY==0))
+        if (($REPLY>$#+1)) || ! [[ $REPLY =~ ^[0-9]+$ ]] || (($REPLY==0))
         then
             echo "enter a valid number"
             continue
         fi
 
-        echo $choice
+        if ((REPLY == $#+1))
+        then
+            source ./manageDatabase/manageHome.sh $db
+        fi
+        
+        table=$choice
         break
 
     done
 }
+
 
 function getFields {
     count=0
     for rec in $(head -n1 ./DataBases/$db/$1 | awk  'BEGIN{RS=":"}{print $0}')
     do
         res=($(awk 'BEGIN{RS="&"}{print $0}' <<< $rec))
-        echo $rec
         if ((${#res[0]} > 1))
         then
             primSet[${res[1]}]=${res[0]:1}
@@ -149,7 +156,7 @@ do
     else
         PS3="Enter your selection Number ==> "
         
-        table=$(selectMenu ${tablesList[@]})
+        selectMenu ${tablesList[@]}
         getFields $table
         primaryKeyAdd $table
         fieldsAdd $table

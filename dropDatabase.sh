@@ -2,6 +2,10 @@
 
 
 printf "\n"
+echo "#######################"
+echo "## DROP DATABASE ##"
+echo "#######################"
+printf "\n"
 echo "Choose DataBase to Drop"
 PS3="Select A number ==> "
 

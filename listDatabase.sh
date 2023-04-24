@@ -1,6 +1,10 @@
 #!/bin/bash
 
 printf "\n"
+echo "####################"
+echo "## LIST DATABASES ##"
+echo "####################"
+printf "\n"
 
 databasesDir=($(find ./DataBases -mindepth 1 -type d | cut -d/ -f3))
 

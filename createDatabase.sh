@@ -1,7 +1,9 @@
 #!/bin/bash
 
 
-echo "Create Your Database"
+echo "##########################"
+echo "## Create Your Database ##"
+echo "##########################"
 
 while [ true ]
 do

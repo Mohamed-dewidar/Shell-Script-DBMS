@@ -1,7 +1,10 @@
 #!/bin/bash
 
 printf "\n"
+echo "################"
 echo "## DROP TABLE ##"
+echo "################"
+printf "\n"
 echo "Select a table to Drop"
 
 tableList=($(find ./DataBases/$1 -type f | cut -d/ -f4))

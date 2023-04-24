@@ -1,6 +1,10 @@
 #!/bin/bash
 
 printf "\n"
+echo "###################"
+echo "## Connect To DB ##"
+echo "###################"
+printf "\n"
 echo "Choose DataBase to connect to"
 PS3="Select a Number ==> "
 

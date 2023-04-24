@@ -1,7 +1,10 @@
 #!/bin/bash
 
 printf "\n"
+echo "#################"
 echo "## LIST TABLES ##"
+echo "#################"
+printf "\n"
 
 tablesList=($(find ./DataBases/$1 -type f | cut -d/ -f4))
 

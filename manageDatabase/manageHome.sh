@@ -1,7 +1,10 @@
 #!/bin/bash
 
 printf "\n"
-echo "## MANAGE DATABASE"
+echo "#####################"
+echo "## MANAGE DATABASE ##"
+echo "#####################"
+printf "\n"
 echo "Connected to $1"
 
 PS3="Enter your selection number ==> "

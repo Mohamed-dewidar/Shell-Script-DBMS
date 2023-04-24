@@ -1,6 +1,10 @@
 #!/bin/bash
 
 printf "\n"
+echo "###############"
+echo "## MAIN MENU ##"
+echo "###############"
+printf "\n"
 PS3="Enter Your Selection Number ==> "
 choiceList=("Create-Database" "List-Databases" "Connect-to-Database" "Drop-Database" "Exit")
 select choice in ${choiceList[@]}

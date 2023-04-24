@@ -1,7 +1,9 @@
 #!/bin/bash
 
 printf "\n"
+echo "##################"
 echo "## CREATE TABLE ##"
+echo "##################"
 
 declare -A fieldSet
 db=$1
