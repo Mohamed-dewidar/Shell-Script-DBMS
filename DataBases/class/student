@@ -1,4 +1,8 @@
-#s&id:s&name:i&age
-2:2:2
-kite:nmae:25
-mohamed:ahmed:23
+#s&id:s&name:i&age:s&subj:i&class
+1:mohamed:25:js:2
+2:ahmed:25:js:3
+3:moad:25:css:3
+4:mohamed:25:python:3
+5:mina:25:html:2
+6:zyad:25:python:2
+7:ahmed:20:html:3
