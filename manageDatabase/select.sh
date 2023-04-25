@@ -28,7 +28,7 @@ function selectMenu {
             continue
         fi
 
-        if ((REPLY == $#+1))
+        if (($REPLY == $#+1))
         then
             source ./manageDatabase/manageHome.sh $db
         fi
@@ -100,10 +100,6 @@ function whereCond {
             then
                 echo "the $choice type is integer, enter valid data"
                 continue
-            # elif ! [[ $value =~ ^[\w]$ ]]
-            # then
-            #     echo "primary key is String, enter a valid one"
-            #     continue
             fi
             
 
@@ -148,7 +144,7 @@ function getData {
     done
 
     search=${search:0:((${#search}-1))}"$"
-    result=$(sed -n "/$search/p" ./DataBases/$db/$1)
+    result=$(sed -n '2,$p' ./DataBases/$db/$1 | sed -n "/$search/p")
 }
 function printData {
     printf "\n"

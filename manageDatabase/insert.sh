@@ -83,10 +83,7 @@ function primaryKeyAdd {
             then
                 echo "the $key type is integer, enter valid data"
                 continue
-            # elif ! [[ $value =~ ^[\w]$ ]]
-            # then
-            #     echo "primary key is String, enter a valid one"
-            #     continue
+         
             fi
             
             ## check unique ##
