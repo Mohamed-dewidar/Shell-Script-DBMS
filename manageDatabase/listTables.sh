@@ -1,21 +1,22 @@
 #!/bin/bash
 
 printf "\n"
-echo "#################"
-echo "## LIST TABLES ##"
-echo "#################"
+echo -e "${BBlue}#################"
+echo -e "${BBlue}## LIST TABLES ##"
+echo -e "${BBlue}#################${Color_Off}"
 printf "\n"
 
 tablesList=($(find ./DataBases/$1 -type f | cut -d/ -f4))
 
 if ((${#tablesList[@]}==0))
 then
-    echo "no tables, you will be redirected to manage home in 2 seconds"
+    echo -e "${Red}no tables, you will be redirected to manage home in 2 seconds${Color_Off}"
     sleep 2
-    source ./manageDatabase/manageHome.sh
+    source ./divide.sh
+    source ./manageDatabase/manageHome.sh $1
 else
  
-    echo "List of all tables"
+    echo -e "${Green}List of all tables"
     printf "+----------------------+ \n"
     printf "%-1s %-20s %-1s \n" "|" "Name" "|"
     printf "+----------------------+ \n"
@@ -25,13 +26,15 @@ else
         printf "| %-20s | \n" $table
     done
 
-    printf "+----------------------+ \n"
+    printf "+----------------------+ ${Color_Off}\n"
 
     res=''
     until [[ $res =~ ^[Yy]$ ]]
     do
-        read -p "back to manage home[y/n]: " res
+        printf "${BCyan}back to manage home[y/n]: ${Color_Off}"
+        read res
     done
-
-    source ./manageDatabase/manageHome.sh
+    
+    source ./divide.sh
+    source ./manageDatabase/manageHome.sh $1
 fi

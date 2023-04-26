@@ -1,42 +1,45 @@
 #!/bin/bash
 
 printf "\n"
-echo "###################"
-echo "## Connect To DB ##"
-echo "###################"
+echo -e "${BBlue}###################"
+echo -e "${BBlue}## Connect To DB ##"
+echo -e "${BBlue}###################"
 printf "\n"
-echo "Choose DataBase to connect to"
-PS3="Select a Number ==> "
+echo -e "Choose DataBase to connect to${Color_Off}"
+
 
 databasesDir=($(find ./DataBases -mindepth 1 -type d | cut -d/ -f3))
 
 if ((${#databasesDir[@]}==0))
 then
-    echo "no Databases to drop, you will be redirected to main Menu in 2 seconds"
+    echo -e "${Red}no Databases to drop, you will be redirected to main Menu in 2 seconds${Color_Off}"
     sleep 2
+    source ./divide.sh
     source ./mainMenu.sh
 else
     select choice in ${databasesDir[@]} "back to Main Menu"
     do
 
-        if ! [[ $REPLY =~ ^[0-9]+$ ]]
+        if ! [[ $REPLY =~ ^[1-9]+0*$ ]]
         then
-            echo "enter a valid Number"
+            echo -e "${Red}enter a valid Number${Color_Off}"
             continue
         fi
         
         if (($REPLY>${#databasesDir[@]}+1))
         then
-            echo "enter a valid number"
+            echo -e "${Red}enter a valid number${Color_Off}"
             continue
         fi
 
         if (($REPLY==${#databasesDir[@]}+1))
         then
+            source ./divide.sh
             source ./mainMenu.sh
             break     
         fi
 
+        source ./divide.sh
         source ./manageDatabase/manageHome.sh $choice
         break     
     done

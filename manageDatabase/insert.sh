@@ -2,26 +2,33 @@
 
 printf "\n"
 
-echo "#######################"
-echo "## INSERT INTO TABLE ##"
-echo "#######################"
+echo -e "${BBlue}#######################"
+echo -e "${BBlue}## INSERT INTO TABLE ##"
+echo -e "${BBlue}#######################${Color_Off}"
+printf "\n"
+
 declare -A primSet
 declare -A fieldSet
 declare -A map
+primSet=()
+fieldSet=()
+map=()
 primOrder=()
 fieldOrder=()
 db=$1
 record=''
 table=''
 
+
+
 function selectMenu {
         
     select choice in $@ "Back to Manage Home"
     do 
 
-        if (($REPLY>$#+1)) || ! [[ $REPLY =~ ^[0-9]+$ ]] || (($REPLY==0))
+        if (($REPLY>$#+1)) || ! [[ $REPLY =~ ^[1-9]+0*$ ]]
         then
-            echo "enter a valid number"
+            echo -e "${Red}enter a valid number${Color_Off}"
             continue
         fi
 
@@ -63,7 +70,7 @@ function primaryKeyAdd {
     type['i']='integer'
     type['s']='string'
     printf "\n"
-    echo "Primary Keys add"
+    echo -e "${BBlue}Primary Keys add${Color_Off}"
     for key in ${primOrder[@]}
     do
         
@@ -71,17 +78,18 @@ function primaryKeyAdd {
         do
             value=${primSet[$key]}
 
-            read -p "Enter the $key Value, and its type is ${type[$value]}  ==> " data 
+            printf "${BCyan}Enter the $key Value, and its type is ${type[$value]}  ==> ${Color_Off}"
+            read data
 
             if [[ $data == "" ]]
             then 
-                echo "no data were entered"
+                echo -e "${Red}no data were entered${Color_Off}"
                 continue
             fi
 
             if [[ $value = 'i' ]] && ! [[ $data =~ ^[0-9]+$ ]]
             then
-                echo "the $key type is integer, enter valid data"
+                echo -e "${Red}the $key type is integer, enter valid data${Color_Off}"
                 continue
          
             fi
@@ -89,7 +97,7 @@ function primaryKeyAdd {
             ## check unique ##
             if $(cut -d: -f"${map[$key]}" ./DataBases/$db/$1 | grep -qx $data)
             then
-                echo "this primary key exists"
+                echo -e "${Red}this primary key exists${Color_Off}"
                 continue
             fi
 
@@ -106,7 +114,7 @@ function fieldsAdd {
     type['i']='integer'
     type['s']='string'
     printf "\n"
-    echo "Fields add"
+    echo -e "${BBlue}Fields add${Color_Off}"
     for key in ${fieldOrder[@]}
     do
         
@@ -115,22 +123,19 @@ function fieldsAdd {
             value=${fieldSet[$key]}
             
 
-            read -p "Enter the $key Value, and its type is ${type[$value]}  ==> " data 
+            printf "${BCyan}Enter the $key Value, and its type is ${type[$value]}  ==> ${Color_Off}"
+            read data 
 
             if [[ $data == "" ]]
             then 
-                echo "no data were entered"
+                echo -e "${Red}no data were entered${Color_Off}"
                 continue
             fi
 
             if [[ $value = 'i' ]] && ! [[ $data =~ ^[0-9]+$ ]]
             then
-                echo "the $key type is integer, enter valid data"
+                echo -e "${Red}the $key type is integer, enter valid data${Color_Off}"
                 continue
-            # elif ! [[ $value =~ ^[\w]$ ]]
-            # then
-            #     echo "primary key is String, enter a valid one"
-            #     continue
             fi
             
             record=$record$data:
@@ -143,34 +148,36 @@ function fieldsAdd {
 
 tablesList=($(find ./DataBases/$1 -type f | cut -d/ -f4))
 
-while [ true ]
-do
-    if ((${#tablesList[@]}==0))
-    then
-        echo "no tables, you will be redirected to manage home in 2 seconds"
-        sleep 2
-        source ./manageDatabase/manageHome.sh
-    else
-        PS3="Enter your selection Number ==> "
-        
-        selectMenu ${tablesList[@]}
-        getFields $table
+
+
+if ((${#tablesList[@]}==0))
+then
+    echo -e "${Red}no tables, you will be redirected to manage home in 2 seconds${Color_Off}"
+    sleep 2
+    source ./divide.sh
+    source ./manageDatabase/manageHome.sh $db
+else
+    
+    selectMenu ${tablesList[@]}
+    getFields $table
+
+    res='y'
+    while [[ $res =~ ^[Yy]$ ]]
+    do
         primaryKeyAdd $table
         fieldsAdd $table
         
         record=${record:0:((${#record}-1))}
         echo $record >> ./DataBases/$db/$table
-        echo "The record was added successfully"
-        
+        echo -e "${Green}The record was added successfully${Color_Off}"
 
-        read -p "Want to add more records[y/n]: " res
+        printf "${BCyan}Want to add more records[y/n]: ${Color_Off}"
+        read res
+    done
+    source ./divide.sh
+    source ./manageDatabase/manageHome.sh $db
 
-        if [[ $res =~ ^[nN]$ ]]
-        then
-            source ./manageDatabase/manageHome.sh
-        fi
+fi
 
-    fi
-done
 
 

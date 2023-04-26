@@ -1,9 +1,10 @@
 #!/bin/bash
 
 printf "\n"
-echo "##################"
-echo "## UPDATE TABLE ##"
-echo "##################"
+echo -e "${BBlue}##################"
+echo -e "${BBlue}## UPDATE TABLE ##"
+echo -e "${BBlue}##################${Color_Off}"
+printf "\n"
 
 declare -A primSet
 declare -A fieldSet
@@ -11,6 +12,13 @@ declare -A allFields
 declare -A map
 declare -A where
 declare -A updateSet
+primSet=()
+fieldSet=()
+allFields=()
+map=()
+where=()
+updateSet=()
+
 primOrder=()
 fieldOrder=()
 db=$1
@@ -21,18 +29,19 @@ result=''
 
 
 function selectMenu {
-    printf "\n Choose Table \n"
+    printf "${BBlue}\n Choose Table \n${Color_Off}"
     select choice in $@ "Back to Manage Home"
     do 
 
-        if (($REPLY>$#+1)) || ! [[ $REPLY =~ ^[0-9]+$ ]] || (($REPLY==0))
+        if (($REPLY>$#+1)) || ! [[ $REPLY =~ ^[1-9]+0*$ ]]
         then
-            echo "enter a valid number"
+            echo -e "${Red}enter a valid number${Color_Off}"
             continue
         fi
 
         if ((REPLY == $#+1))
         then
+            source ./divide.sh
             source ./manageDatabase/manageHome.sh $db
         fi
         
@@ -69,17 +78,17 @@ function whereCond {
     type['i']='integer'
     type['s']='string'
     
-    printf "\n where condition \n"
+    printf "${BBlue}\n where condition \n${Color_Off}"
     limit=$((${#primOrder[@]}+${#fieldOrder[@]}+1))
     
     select choice in ${primOrder[@]} ${fieldOrder[@]} "All"
     do 
-        if ! [[ $REPLY =~ ^[0-9]+$ ]] || (($REPLY>limit))|| [[ $REPLY == 0 ]]
+        if ! [[ $REPLY =~ ^[1-9]+0*$ ]] || (($REPLY>limit))
         then
-            echo "Enter A valid number"
+            echo -e "${RED}Enter A valid number${Color_Off}"
             continue
         fi
-        echo $choice
+        
         if [[ $choice =  'All' ]]
         then
             where[$choice]=1
@@ -91,27 +100,28 @@ function whereCond {
         do
             value=${allFields[$choice]}
 
-            read -p "Enter the $choice Value, and its type is ${type[$value]}  ==> " data 
+            printf "${BCyan}Enter the $choice Value, and its type is ${type[$value]}  ==> ${Color_Off}"
+            read data
 
             if [[ $data == "" ]]
             then 
-                echo "no data were entered"
+                echo -e "${Red}no data were entered${Color_Off}"
                 continue
             fi
 
             if [[ $value = 'i' ]] && ! [[ $data =~ ^[0-9]+$ ]]
             then
-                echo "the $choice type is integer, enter valid data"
+                echo -e "${Red}the $choice type is integer, enter valid data${Color_Off}"
                 continue
            
             fi
-            
-
+        
             where[$choice]=$data
             break
         done
 
-        read -p "add or modifiy condition[y/n]: " res
+        printf "${BCyan}add or modifiy condition[y/n]: ${Color_Off}"
+        read res
         if [[ $res =~ [nN] ]]
         then
             break
@@ -127,14 +137,14 @@ function setData {
     type['i']='integer'
     type['s']='string'
     
-    printf "\n choose fields to updates its value \n"
+    printf "${BBlue}\n choose fields to updates its value \n${Color_Off}"
     limit=$((${#primOrder[@]}+${#fieldOrder[@]}))
     
     select choice in ${primOrder[@]} ${fieldOrder[@]}
     do 
         if ! [[ $REPLY =~ ^[0-9]+$ ]] || (($REPLY>limit))|| [[ $REPLY == 0 ]]
         then
-            echo "Enter A valid number"
+            echo -e "${Red}Enter A valid number${Color_Off}"
             continue
         fi
     
@@ -145,17 +155,17 @@ function setData {
         do
             value=${allFields[$choice]}
 
-            read -p "Enter the $choice Value, and its type is ${type[$value]}  ==> " data 
-
+            printf "${BCyan}Enter the $choice Value, and its type is ${type[$value]}  ==> ${Color_Off}"
+            read data
             if [[ $data == "" ]]
             then 
-                echo "no data were entered"
+                echo -e "${Red}no data were entered${Color_Off}"
                 continue
             fi
 
             if [[ $value = 'i' ]] && ! [[ $data =~ ^[0-9]+$ ]]
             then
-                echo "the $choice type is integer, enter valid data"
+                echo -e "${Red}the $choice type is integer, enter valid data${Color_Off}"
                 continue
             fi
 
@@ -164,7 +174,7 @@ function setData {
                  ## check unique if primary key ##
                 if $(cut -d: -f"${map[$choice]}" ./DataBases/$db/$1 | grep -qx $data)
                 then
-                    echo "this primary key exists"
+                    echo -e "${Red}this primary key exists${Color_Off}"
                     continue
                 fi
             fi
@@ -174,7 +184,8 @@ function setData {
             break
         done
 
-        read -p "add or modifiy added fields to update[y/n]: " res
+        printf "${BCyan}add or modifiy added fields to update[y/n]: ${Color_Off}"
+        read res
         if [[ $res =~ [nN] ]]
         then
             break
@@ -237,7 +248,21 @@ function UpdateData {
     fi   
     search=${search:0:((${#search}-1))}  
     setPattern=${setPattern:0:((${#setPattern}-1))}
+    
+    numOfSelRec=$(sed -n "2,$ {/^$search$/p}" ./DataBases/$db/$1 | wc -l)
 
+    if (($numOfSelRec>=2))
+    then
+        for key in ${!updateSet[@]}
+        do
+            if [ ${primSet[$key]} ]
+            then
+                echo -e "${Red}ERROR: more than record selected to update its primary key ${Color_Off}"
+                source ./divide.sh
+                source ./manageDatabase/update.sh $db
+            fi
+        done
+    fi
 
     gawk -i inplace -v pattern=$setPattern -v search=$search -F: 'BEGIN {split(pattern, patt, ":") split(search, sea, ":"); OFS=":"} 
     {   check=1
@@ -247,8 +272,8 @@ function UpdateData {
         }
         for(i=1;i<=NF;i++){ 
           if(sea[i] != ".*" && sea[i] != $i){
-            check=0;
-            break;
+            print $0;
+            next;
           }     
         };
         if(check == 1){
@@ -269,18 +294,19 @@ tablesList=($(find ./DataBases/$1 -type f | cut -d/ -f4))
 
 if ((${#tablesList[@]}==0))
 then
-    echo "no tables, you will be redirected to manage home in 2 seconds"
+    echo -e "${Red}no tables, you will be redirected to manage home in 2 seconds${Color_Off}"
     sleep 2
+    source ./divide.sh
     source ./manageDatabase/manageHome.sh
 else
-    PS3="Enter your selection Number ==> "
     
     selectMenu ${tablesList[@]}
     getFields $table
     whereCond
     setData $table
     UpdateData $table
-    echo "table has been updated"
+    echo  -e "${Green}${numOfSelRec} record has been updated ${Color_Off}"
+    source ./divide.sh
     source ./manageDatabase/update.sh $1
 fi
 

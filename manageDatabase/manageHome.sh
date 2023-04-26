@@ -1,13 +1,13 @@
 #!/bin/bash
 
 printf "\n"
-echo "#####################"
-echo "## MANAGE DATABASE ##"
-echo "#####################"
+echo -e "${BBlue}#####################"
+echo -e "${BBlue}## MANAGE DATABASE ##"
+echo -e "${BBlue}#####################"
 printf "\n"
-echo "Connected to $1"
+echo -e "Connected to $1 ${Color_Off}"
 
-PS3="Enter your selection number ==> "
+
 optionsList=("Create-Table" "List-Tables" "Drop-Table" "Insert-Into-Table" "Select-From-Table" "Update-Table" "Delete-From-Table" "Main-menu")
 
 select choice in ${optionsList[@]}
@@ -21,6 +21,6 @@ do
         6) source ./manageDatabase/update.sh $1;;
         7) source ./manageDatabase/delete.sh $1;;
         8) source ./mainMenu.sh;;
-        *) echo "Enter a valid Selection" ;;
+        *) echo -e "${Red}Enter a valid Selection${Color_Off}" ;;
     esac
 done

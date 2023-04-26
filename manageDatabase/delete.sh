@@ -1,15 +1,22 @@
 #!/bin/bash
 
 printf "\n"
-echo "#######################"
-echo "## DELETE FROM TABLE ##"
-echo "#######################"
+echo -e "${BBlue}#######################"
+echo -e "${BBlue}## DELETE FROM TABLE ##"
+echo -e "${BBlue}#######################${Color_Off}"
+printf "\n"
 
 declare -A primSet
 declare -A fieldSet
 declare -A allFields
 declare -A map
 declare -A where
+primSet=()
+fieldSet=()
+allFields=()
+map=()
+where=()
+
 primOrder=()
 fieldOrder=()
 db=$1
@@ -19,18 +26,19 @@ result=''
 
 
 function selectMenu {
-    printf "\n Choose Table \n"
+    printf "${BBlue}\n Choose Table \n${Color_Off}"
     select choice in $@ "Back to Manage Home"
     do 
 
-        if (($REPLY>$#+1)) || ! [[ $REPLY =~ ^[0-9]+$ ]] || (($REPLY==0))
+        if (($REPLY>$#+1)) || ! [[ $REPLY =~ ^[1-9]+0*$ ]]
         then
-            echo "enter a valid number"
+            echo -e "${Red}enter a valid number${Color_Off}"
             continue
         fi
 
         if (($REPLY == $#+1))
         then
+            source ./divide.sh
             source ./manageDatabase/manageHome.sh $db
         fi
         
@@ -67,14 +75,14 @@ function whereCond {
     type['i']='integer'
     type['s']='string'
     
-    printf "\n where condition \n"
+    printf "${BBlue}\n where condition \n${Color_Off}"
     limit=$((${#primOrder[@]}+${#fieldOrder[@]}+1))
     
     select choice in ${primOrder[@]} ${fieldOrder[@]} "All"
     do 
-        if ! [[ $REPLY =~ ^[0-9]+$ ]] || (($REPLY>limit))|| [[ $REPLY == 0 ]]
+        if ! [[ $REPLY =~ ^[1-9]+0*$ ]] || (($REPLY>limit))
         then
-            echo "Enter A valid number"
+            echo -e"${Red}Enter A valid number${Color_Off}"
             continue
         fi
         
@@ -89,22 +97,19 @@ function whereCond {
         do
             value=${allFields[$choice]}
 
-            read -p "Enter the $choice Value, and its type is ${type[$value]}  ==> " data 
+            printf "${BCyan}Enter the $choice Value, and its type is ${type[$value]}  ==> ${Color_Off}"
+            read data
 
             if [[ $data == "" ]]
             then 
-                echo "no data were entered"
+                echo -e "${Red}no data were entered${Color_Off}"
                 continue
             fi
 
             if [[ $value = 'i' ]] && ! [[ $data =~ ^[0-9]+$ ]]
             then
-                echo "the $choice type is integer, enter valid data"
+                echo -e "${Red}the $choice type is integer, enter valid data${Color_Off}"
                 continue
-            # elif ! [[ $value =~ ^[\w]$ ]]
-            # then
-            #     echo "primary key is String, enter a valid one"
-            #     continue
             fi
             
 
@@ -112,7 +117,8 @@ function whereCond {
             break
         done
 
-        read -p "add or modifiy condition[y/n]: " res
+        printf "${BCyan}add or modifiy condition[y/n]: ${Color_Off}"
+        read res
         if [[ $res =~ [nN] ]]
         then
             break
@@ -125,6 +131,7 @@ function deleteData {
     
     if [ ${where['All']} ]
     then
+        numOfRec=$(sed -n '2,${p}' ./DataBases/$db/$1 | wc -l)
         result=$(sed -i '2,${d}' ./DataBases/$db/$1)
         return
     fi
@@ -150,6 +157,7 @@ function deleteData {
     done
 
     search=${search:0:((${#search}-1))}"$"
+    numOfRec=$(sed -n "2,$ {/$search/p}" ./DataBases/$db/$1 | wc -l)
     result=$(sed -i "2,$ {/$search/d}" ./DataBases/$db/$1)
 }
 
@@ -159,18 +167,18 @@ tablesList=($(find ./DataBases/$1 -type f | cut -d/ -f4))
 
 if ((${#tablesList[@]}==0))
 then
-    echo "no tables, you will be redirected to manage home in 2 seconds"
+    echo -e "${Red}no tables, you will be redirected to manage home in 2 seconds${Color_Off}"
     sleep 2
-    source ./manageDatabase/manageHome.sh
+    source ./divide.sh
+    source ./manageDatabase/manageHome.sh $db
 else
-    PS3="Enter your selection Number ==> "
     
     selectMenu ${tablesList[@]}
     getFields $table
     whereCond
     deleteData $table
-    echo  "Record has been deleted"
-    
+    echo  -e "${Green}${numOfRec} Record has been deleted${Color_Off}"
+    source ./divide.sh
     source ./manageDatabase/delete.sh $1
   
 
