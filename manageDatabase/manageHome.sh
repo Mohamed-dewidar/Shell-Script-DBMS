@@ -8,7 +8,7 @@ printf "\n"
 echo "Connected to $1"
 
 PS3="Enter your selection number ==> "
-optionsList=("Create-Table" "List-Tables" "Drop-Table" "Insert-Into-Table" "Select-From-Table" "Update-Table" "Delete-Table" "Main-menu")
+optionsList=("Create-Table" "List-Tables" "Drop-Table" "Insert-Into-Table" "Select-From-Table" "Update-Table" "Delete-From-Table" "Main-menu")
 
 select choice in ${optionsList[@]}
 do 

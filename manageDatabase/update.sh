@@ -14,9 +14,10 @@ declare -A updateSet
 primOrder=()
 fieldOrder=()
 db=$1
-search='^'
+search=''
 table=''
 result=''
+
 
 
 function selectMenu {
@@ -102,10 +103,7 @@ function whereCond {
             then
                 echo "the $choice type is integer, enter valid data"
                 continue
-            # elif ! [[ $value =~ ^[\w]$ ]]
-            # then
-            #     echo "primary key is String, enter a valid one"
-            #     continue
+           
             fi
             
 
@@ -186,7 +184,7 @@ function setData {
 
 function UpdateData {
     
-    setPattern='^'
+    setPattern=''
     ## where condtion pattern ## 
     for key in ${primOrder[@]}
     do 
@@ -207,8 +205,8 @@ function UpdateData {
             search=$search".*:"
         fi
     done
-
-    ## values update pattern ##    
+    
+    ## values update pattern ##
     for key in ${primOrder[@]}
     do 
         if [ ${updateSet[$key]} ]
@@ -227,15 +225,43 @@ function UpdateData {
         else
             setPattern=$setPattern".*:"
         fi
-    done   
+    done
 
-    search=${search:0:((${#search}-1))}"$"
-    setPattern=${setPattern:0:((${#setPattern}-1))}"$"
-    echo $search
-    echo $setPattern
-    
-    result=$(sed -i "2,$ {s/$search/$setPattern/g}" ./DataBases/$db/$1)
+    if [ ${where['All']} ]
+    then
+        search=''
+        for key in ${allFields[@]}
+        do
+            search+=".*:"
+        done
+    fi   
+    search=${search:0:((${#search}-1))}  
+    setPattern=${setPattern:0:((${#setPattern}-1))}
+
+
+    gawk -i inplace -v pattern=$setPattern -v search=$search -F: 'BEGIN {split(pattern, patt, ":") split(search, sea, ":"); OFS=":"} 
+    {   check=1
+        if(NR==1){
+            print $0;
+            next;
+        }
+        for(i=1;i<=NF;i++){ 
+          if(sea[i] != ".*" && sea[i] != $i){
+            check=0;
+            break;
+          }     
+        };
+        if(check == 1){
+        for(i=1;i<=NF;i++){
+            if(patt[i] != ".*")
+                $i = patt[i]
+            }
+        }
+        ;
+        print $0}' ./DataBases/$db/$1
+
 }
+
 ## Main Script Statrs Here ##
 
 tablesList=($(find ./DataBases/$1 -type f | cut -d/ -f4))
@@ -254,5 +280,7 @@ else
     whereCond
     setData $table
     UpdateData $table
+    echo "table has been updated"
     source ./manageDatabase/update.sh $1
 fi
+
