@@ -9,11 +9,13 @@ declare -A fieldSet
 declare -A allFields
 declare -A map
 declare -A where
+declare -A selectCol
 primSet=()
 fieldSet=()
 allFields=()
 map=()
 where=()
+selectCol=()
 
 primOrder=()
 fieldOrder=()
@@ -66,6 +68,38 @@ function getFields {
         fieldOrder+=(${res[1]})
     done 
 }
+
+
+function selectColumns {
+
+    
+    printf "${BBlue}\n columns to select \n${Color_Off}"
+    limit=$((${#primOrder[@]}+${#fieldOrder[@]}+1))
+    
+    select choice in ${primOrder[@]} ${fieldOrder[@]} "All"
+    do 
+        if ! [[ $REPLY =~ ^[1-9]+0*$ ]] || (($REPLY>limit))
+        then
+            echo -e "${Red}Enter A valid number${Color_Off}"
+            continue
+        fi
+        
+        if [[ $choice =  'All' ]]
+        then
+            selectCol[$choice]=1
+            break
+        fi
+
+        selectCol[$choice]=1
+        printf "${BCyan}add selection[y/n]: ${Color_Off}"
+        read res
+        if [[ $res =~ [nN] ]]
+        then
+            break
+        fi
+    done
+}
+
 
 function whereCond {
 
@@ -124,6 +158,7 @@ function whereCond {
     done
 }
 
+
 function getData {
     
     if [ ${where['All']} ]
@@ -155,10 +190,65 @@ function getData {
     search=${search:0:((${#search}-1))}"$"
     result=$(sed -n '2,$p' ./DataBases/$db/$1 | sed -n "/$search/p")
 }
+
+
+function selectData {
+    
+    setPattern=''
+
+    ## values update pattern ##
+    for key in ${primOrder[@]}
+    do 
+        if [ ${selectCol[$key]} ]
+        then
+            setPattern=$setPattern"1:"
+        else
+            setPattern=$setPattern"0:"
+        fi        
+    done
+
+    for key in ${fieldOrder[@]}
+    do 
+        if [ ${selectCol[$key]} ]
+        then
+            setPattern=$setPattern"1:"
+        else
+            setPattern=$setPattern"0:"
+        fi
+    done
+
+    if [ ${selectCol['All']} ]
+    then
+        setPattern=''
+        selectCol=()
+        for key in ${!allFields[@]}
+        do
+            setPattern+="1:"
+            selectCol[$key]=1
+        done
+    fi   
+    setPattern=${setPattern:0:((${#setPattern}-1))}
+   
+    awkdata=""
+    awkdata+=$(awk -v pattern=$setPattern -F: 'BEGIN {split(pattern, patt, ":"); OFS=":"; ORS="\n"} 
+    {  
+        str=""
+        for(i=1;i<=NF;i++){ 
+          if(patt[i] == "1"){
+            str=str$i":"
+          }     
+        };
+        print substr(str, 1, length(str)-1)
+    }' <<< ${result})
+
+}
+
+
 function printData {
+
     printf "${Green}\n"
     border=''
-    for ((i=0 ; i < ${#allFields[@]} ; i++))
+    for ((i=0 ; i < ${#selectCol[@]} ; i++))
     do
         border=$border'+--------------------'  
     done
@@ -168,16 +258,25 @@ function printData {
 
     recPrint=''
 
-    for ((i=0 ; i < ${#fieldOrder[@]} ; i++))
+    for ((i=0 ; i < ${#selectCol[@]} ; i++))
     do
         recPrint+="| %-18s "
     done
     recPrint+="| \n"
-    printf "$recPrint" ${fieldOrder[@]}
+
+    selectOrder=()
+    for key in ${fieldOrder[@]}
+    do
+        if [ ${selectCol[$key]} ]
+        then
+            selectOrder+=($key)
+        fi
+    done    
+    printf "$recPrint" ${selectOrder[@]}
 
     printf $border"\n"
 
-    for row in ${result}
+    for row in ${awkdata}
     do
         recPrint=''
         readarray -d: -t arr <<< $row
@@ -196,7 +295,6 @@ function printData {
 
 
 
-
 ## Main Script Statrs Here ##
 
 tablesList=($(find ./DataBases/$1 -type f | cut -d/ -f4))
@@ -212,9 +310,12 @@ else
     
     selectMenu ${tablesList[@]}
     getFields $table
+    selectColumns
     whereCond
     getData $table
+    selectData
     printData
+ 
     source ./divide.sh
     source ./manageDatabase/select.sh $db
 

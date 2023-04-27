@@ -1,3 +1,8 @@
-#i&id:s&name
-20:mohamed
-22:kite
+#i&id:s&name:i&hours
+1:js:20
+2:html:10
+3:react:30
+4:css:10
+5:python:20
+6:java:20
+7:flask:30

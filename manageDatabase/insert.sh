@@ -87,7 +87,7 @@ function primaryKeyAdd {
                 continue
             fi
 
-            if [[ $value = 'i' ]] && ! [[ $data =~ ^[0-9]+$ ]]
+            if [[ $value = 'i' ]] && ! [[ $data =~ ^[1-9]+0*$ ]]
             then
                 echo -e "${Red}the $key type is integer, enter valid data${Color_Off}"
                 continue
