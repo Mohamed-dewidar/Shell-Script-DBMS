@@ -169,6 +169,7 @@ else
         
         record=${record:0:((${#record}-1))}
         echo $record >> ./DataBases/$db/$table
+        record=''
         echo -e "${Green}The record was added successfully${Color_Off}"
 
         printf "${BCyan}Want to add more records[y/n]: ${Color_Off}"
